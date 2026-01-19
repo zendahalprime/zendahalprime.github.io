@@ -37,7 +37,6 @@
             padding: 40px 20px;
         }
 
-        /* Header Section */
         header {
             text-align: center;
             margin-bottom: 60px;
@@ -58,6 +57,7 @@
             border-radius: 50%;
             border: 3px solid var(--accent);
             object-fit: cover;
+            background: var(--bg-card);
         }
 
         h1 {
@@ -75,7 +75,6 @@
             margin: 10px 0 0 0;
         }
 
-        /* Repositories Grid */
         .repos-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -92,18 +91,12 @@
             display: flex;
             flex-direction: column;
             height: 100%;
-            cursor: pointer;
         }
 
         .repo-card:hover {
             border-color: var(--accent);
             box-shadow: 0 12px 30px rgba(56, 189, 248, 0.15);
             transform: translateY(-5px);
-        }
-
-        .repo-icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
         }
 
         .repo-name {
@@ -148,7 +141,6 @@
             transform: translateY(-2px);
         }
 
-        /* Loading & Empty State */
         .loading {
             text-align: center;
             padding: 60px 20px;
@@ -170,18 +162,16 @@
             to { transform: rotate(360deg); }
         }
 
-        .empty-state {
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #fca5a5;
+            padding: 20px;
+            border-radius: 8px;
             text-align: center;
-            padding: 60px 20px;
-            color: var(--text-muted);
+            margin: 20px 0;
         }
 
-        .empty-state h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
-
-        /* Footer */
         footer {
             text-align: center;
             padding-top: 40px;
@@ -190,7 +180,6 @@
             font-size: 0.9rem;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             h1 {
                 font-size: 2.2rem;
@@ -228,23 +217,13 @@
                 height: 80px;
             }
         }
-
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            color: #fca5a5;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin: 20px 0;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <div class="profile-section">
-                <img id="profilePic" src="" alt="Profile Picture" class="profile-picture">
+                <img id="profilePic" src="" alt="Profile Picture" class="profile-picture" onerror="this.src='https://avatars.githubusercontent.com/u/176869975?v=4'">
                 <div>
                     <h1 id="userName">Dahal</h1>
                     <p class="subtitle">GitHub Projects & Published Apps</p>
@@ -261,11 +240,6 @@
 
         <div id="reposContainer" class="repos-grid" style="display: none;"></div>
 
-        <div id="emptyState" class="empty-state" style="display: none;">
-            <h3>No repositories found</h3>
-            <p>Check back soon for new projects!</p>
-        </div>
-
         <footer>
             <p>🚀 All published projects updated automatically from GitHub</p>
         </footer>
@@ -273,99 +247,92 @@
 
     <script>
         const GITHUB_USERNAME = 'zendahalprime';
-        const USER_API = `https://api.github.com/users/${GITHUB_USERNAME}`;
-        const REPOS_API = `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=updated&order=desc`;
+        const EXCLUDE_REPOS = ['zendahalprime.github.io'];
+
+        // Fallback repos if API fails
+        const fallbackRepos = [
+            {
+                name: 'Leuven-Mortgage-Calculator',
+                description: 'Mortgage calculator tailored for Leuven, Belgium - calculates loan payments, interest rates, and affordability for local housing market.',
+                html_url: 'https://github.com/zendahalprime/Leuven-Mortgage-Calculator'
+            },
+            {
+                name: 'Vedic-Compatibility-Matcher',
+                description: 'Vedic numerology compatibility tool that analyzes names and birthdates using Hindu numerology formulas to calculate relationship scores and compatibility insights.',
+                html_url: 'https://github.com/zendahalprime/Vedic-Compatibility-Matcher'
+            },
+            {
+                name: 'Money-Allocation-Calculator',
+                description: 'Smart money allocation and portfolio manager that automatically distributes funds across categories and rebalances positions for optimal financial planning.',
+                html_url: 'https://github.com/zendahalprime/Money-Allocation-Calculator'
+            }
+        ];
 
         let allRepos = [];
 
         async function loadUserProfile() {
             try {
-                const response = await fetch(USER_API);
-                if (!response.ok) throw new Error('Failed to fetch user profile');
-                
+                const response = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}`);
                 const userData = await response.json();
+                
                 document.getElementById('userName').textContent = userData.name || GITHUB_USERNAME;
                 document.getElementById('profilePic').src = userData.avatar_url;
                 
+                console.log('✓ Profile loaded:', userData.name);
             } catch (error) {
-                console.error('Error loading profile:', error);
+                console.error('Profile load error:', error);
+                document.getElementById('profilePic').src = 'https://avatars.githubusercontent.com/u/176869975?v=4';
             }
         }
-
-        // Hardcoded descriptions for repos
-        const repoDescriptions = {
-            'Vedic-compatibility-calculator': 'Vedic numerology compatibility calculator analyzing names & birthdates for relationship insights',
-            'Money-Allocator': 'Smart portfolio manager that automatically allocates funds and rebalances investments', 
-            'Leuven-Mortgage': 'Mortgage calculator for Leuven, Belgium - loan payments & affordability tool'
-        };
-
-        // Hardcoded repositories as fallback when API fails
-        const fallbackRepos = [
-            {
-                name: 'Vedic-compatibility-calculator',
-                description: repoDescriptions['Vedic-compatibility-calculator'],
-                html_url: 'https://github.com/zendahalprime/Vedic-compatibility-calculator'
-            },
-            {
-                name: 'Money-Allocator',
-                description: repoDescriptions['Money-Allocator'],
-                html_url: 'https://github.com/zendahalprime/Money-Allocator'
-            },
-            {
-                name: 'Leuven-Mortgage',
-                description: repoDescriptions['Leuven-Mortgage'],
-                html_url: 'https://github.com/zendahalprime/Leuven-Mortgage'
-            }
-        ];
 
         async function fetchRepositories() {
             try {
-                const response = await fetch(REPOS_API);
-                if (!response.ok) throw new Error('Failed to fetch repositories');
+                const response = await fetch(
+                    `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=updated&order=desc`
+                );
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 
                 const repos = await response.json();
-                console.log('All repos:', repos.length);
+                console.log(`✓ Fetched ${repos.length} repos from GitHub API`);
                 
-                // Filter: exclude zendahalprime.github.io (exact name match only)
-                allRepos = repos.filter(repo => repo.name !== 'zendahalprime.github.io');
+                // Filter out excluded repos
+                allRepos = repos.filter(repo => !EXCLUDE_REPOS.includes(repo.name));
                 
-                // Add custom descriptions
-                allRepos = allRepos.map(repo => ({
-                    ...repo,
-                    description: repoDescriptions[repo.name] || repo.description
-                }));
+                console.log(`✓ After filtering: ${allRepos.length} repos`);
                 
-                console.log('Filtered repos:', allRepos.length, allRepos.map(r => r.name));
-                
-                if (allRepos.length === 0) {
-                    document.getElementById('emptyState').style.display = 'block';
-                    document.getElementById('loading').style.display = 'none';
-                    return;
-                }
-                
-                renderRepositories();
+                renderRepositories(allRepos);
+                document.getElementById('loading').style.display = 'none';
                 
             } catch (error) {
-                console.error('Error fetching repositories:', error);
-                console.log('Using fallback repositories...');
+                console.error('Fetch error:', error);
+                console.log('✓ Using fallback repositories');
                 
-                // Use fallback repos if API fails
+                // Use fallback
                 allRepos = fallbackRepos;
-                renderRepositories();
+                renderRepositories(allRepos);
+                document.getElementById('loading').style.display = 'none';
+                
+                const errorDiv = document.getElementById('errorContainer');
+                errorDiv.innerHTML = `<div class="error-message">⚠️ Using cached repositories (API unavailable)</div>`;
             }
         }
 
-        function renderRepositories() {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('reposContainer').style.display = 'grid';
-
+        function renderRepositories(repos) {
             const container = document.getElementById('reposContainer');
             
-            container.innerHTML = allRepos.map(repo => `
+            if (!repos || repos.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text-muted);">No repositories found</p>';
+                container.style.display = 'block';
+                return;
+            }
+
+            container.style.display = 'grid';
+            container.innerHTML = repos.map(repo => `
                 <div class="repo-card">
                     <div class="repo-name">${escapeHtml(repo.name)}</div>
                     
-                    <p class="repo-description">${escapeHtml(repo.description)}</p>
+                    <p class="repo-description">${escapeHtml(repo.description || 'No description available')}</p>
                     
                     <div class="repo-links">
                         <a href="${repo.html_url}" class="repo-link" target="_blank">📂 View Code</a>
@@ -376,16 +343,24 @@
         }
 
         function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
         }
 
-        // Load on page load
+        // Initialize on load
         window.addEventListener('DOMContentLoaded', () => {
             loadUserProfile();
             fetchRepositories();
         });
+
+        // Auto-refresh every 5 minutes
+        setInterval(fetchRepositories, 5 * 60 * 1000);
     </script>
 </body>
 </html>
