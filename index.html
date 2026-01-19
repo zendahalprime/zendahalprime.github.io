@@ -433,12 +433,22 @@
                 const response = await fetch(API_URL);
                 if (!response.ok) throw new Error('Failed to fetch repositories');
                 
-                allRepos = await response.json();
+                let repos = await response.json();
+                console.log('All repos from API:', repos.map(r => r.name));
+                
+                // Exclude the main portfolio repo (zendahalprime.github.io)
+                allRepos = repos.filter(repo => repo.name !== 'zendahalprime.github.io');
+                console.log('Repos after filtering:', allRepos.map(r => r.name));
+                console.log(`Total repos fetched: ${repos.length}, Filtered repos: ${allRepos.length}`);
                 
                 // Check for index.html in each repo
-                await Promise.all(allRepos.map(async (repo) => {
+                const promises = allRepos.map(async (repo) => {
                     repo.hasLiveApp = await checkForIndexFile(GITHUB_USERNAME, repo.name);
-                }));
+                    return repo;
+                });
+                
+                await Promise.all(promises);
+</parameter>
                 
                 // Calculate stats
                 updateStats();
