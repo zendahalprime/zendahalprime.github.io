@@ -292,6 +292,32 @@
             }
         }
 
+        // Hardcoded descriptions for repos
+        const repoDescriptions = {
+            'Vedic-compatibility-calculator': 'Vedic numerology compatibility calculator analyzing names & birthdates for relationship insights',
+            'Money-Allocator': 'Smart portfolio manager that automatically allocates funds and rebalances investments', 
+            'Leuven-Mortgage': 'Mortgage calculator for Leuven, Belgium - loan payments & affordability tool'
+        };
+
+        // Hardcoded repositories as fallback when API fails
+        const fallbackRepos = [
+            {
+                name: 'Vedic-compatibility-calculator',
+                description: repoDescriptions['Vedic-compatibility-calculator'],
+                html_url: 'https://github.com/zendahalprime/Vedic-compatibility-calculator'
+            },
+            {
+                name: 'Money-Allocator',
+                description: repoDescriptions['Money-Allocator'],
+                html_url: 'https://github.com/zendahalprime/Money-Allocator'
+            },
+            {
+                name: 'Leuven-Mortgage',
+                description: repoDescriptions['Leuven-Mortgage'],
+                html_url: 'https://github.com/zendahalprime/Leuven-Mortgage'
+            }
+        ];
+
         async function fetchRepositories() {
             try {
                 const response = await fetch(REPOS_API);
@@ -302,6 +328,12 @@
                 
                 // Filter: exclude zendahalprime.github.io (exact name match only)
                 allRepos = repos.filter(repo => repo.name !== 'zendahalprime.github.io');
+                
+                // Add custom descriptions
+                allRepos = allRepos.map(repo => ({
+                    ...repo,
+                    description: repoDescriptions[repo.name] || repo.description
+                }));
                 
                 console.log('Filtered repos:', allRepos.length, allRepos.map(r => r.name));
                 
@@ -315,9 +347,11 @@
                 
             } catch (error) {
                 console.error('Error fetching repositories:', error);
-                const errorDiv = document.getElementById('errorContainer');
-                errorDiv.innerHTML = `<div class="error-message">⚠️ Error loading repositories: ${error.message}</div>`;
-                document.getElementById('loading').style.display = 'none';
+                console.log('Using fallback repositories...');
+                
+                // Use fallback repos if API fails
+                allRepos = fallbackRepos;
+                renderRepositories();
             }
         }
 
@@ -331,7 +365,7 @@
                 <div class="repo-card">
                     <div class="repo-name">${escapeHtml(repo.name)}</div>
                     
-                    <p class="repo-description">${escapeHtml(repo.description || 'No description available')}</p>
+                    <p class="repo-description">${escapeHtml(repo.description)}</p>
                     
                     <div class="repo-links">
                         <a href="${repo.html_url}" class="repo-link" target="_blank">📂 View Code</a>
