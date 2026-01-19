@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dahal - GitHub Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #075985;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --accent: #38bdf8;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header Section */
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .github-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .github-link:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(2, 132, 199, 0.3);
+        }
+
+        /* Stats Section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            color: var(--accent);
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Filters */
+        .filters {
+            margin-bottom: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        /* Repositories Grid */
+        .repos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .repo-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .repo-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 12px 30px rgba(56, 189, 248, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .repo-header {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .repo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .repo-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+
+        .repo-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+
+        .repo-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .language-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+
+        .repo-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .repo-link {
+            flex: 1;
+            padding: 10px 15px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid var(--primary);
+        }
+
+        .repo-link:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .repo-link.secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .repo-link.secondary:hover {
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .repos-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 20px 15px;
+            }
+
+            .repo-links {
+                flex-direction: column;
+            }
+
+            .filters {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dahal</h1>
+            <p class="subtitle">GitHub Projects & Open Source Work</p>
+            <a href="https://github.com/zendahalprime" class="github-link" target="_blank">
+                → Visit My GitHub Profile
+            </a>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalRepos">0</div>
+                <div class="stat-label">Public Projects</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalStars">0</div>
+                <div class="stat-label">Total Stars</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalForks">0</div>
+                <div class="stat-label">Total Forks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="languages">0</div>
+                <div class="stat-label">Languages</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All Projects</button>
+            <button class="filter-btn" data-filter="javascript">JavaScript</button>
+            <button class="filter-btn" data-filter="python">Python</button>
+            <button class="filter-btn" data-filter="html">HTML/CSS</button>
+            <button class="filter-btn" data-filter="other">Other</button>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading repositories...</p>
+        </div>
+
+        <div id="reposContainer" class="repos-grid" style="display: none;"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h3>No repositories found</h3>
+            <p>Check back soon for new projects!</p>
+        </div>
+
+        <footer>
+            <p>🚀 Portfolio updated automatically from GitHub API</p>
+            <p>Last updated: <span id="lastUpdated"></span></p>
+        </footer>
+    </div>
+
+    <script>
+        const GITHUB_USERNAME = 'zendahalprime';
+        const API_URL = `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=updated&order=desc`;
+        const GITHUB_RAW_URL = 'https://api.github.com/repos';
+
+        let allRepos = [];
+        let currentFilter = 'all';
+
+        // Language color mapping
+        const languageColors = {
+            javascript: '#f1e05a',
+            typescript: '#3178c6',
+            python: '#3572A5',
+            java: '#b07219',
+            csharp: '#239120',
+            cpp: '#f34b7d',
+            c: '#555555',
+            php: '#777bb4',
+            ruby: '#cc342d',
+            go: '#00add8',
+            rust: '#ce422b',
+            html: '#e34c26',
+            css: '#563d7c',
+            react: '#61dafb',
+            vue: '#4FC08D',
+            node: '#68a063'
+        };
+
+        async function checkForIndexFile(owner, repo) {
+            try {
+                const response = await fetch(`${GITHUB_RAW_URL}/${owner}/${repo}/contents/index.html`);
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function fetchRepositories() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Failed to fetch repositories');
+                
+                allRepos = await response.json();
+                
+                // Check for index.html in each repo
+                await Promise.all(allRepos.map(async (repo) => {
+                    repo.hasLiveApp = await checkForIndexFile(GITHUB_USERNAME, repo.name);
+                }));
+                
+                // Calculate stats
+                updateStats();
+                
+                // Initial render
+                renderRepositories();
+                
+                // Update timestamp
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+                
+            } catch (error) {
+                console.error('Error fetching repositories:', error);
+                document.getElementById('loading').innerHTML = '<p>Error loading repositories. Please try again later.</p>';
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalRepos').textContent = allRepos.length;
+            
+            let totalStars = 0;
+            let totalForks = 0;
+            let languages = new Set();
+
+            allRepos.forEach(repo => {
+                totalStars += repo.stargazers_count || 0;
+                totalForks += repo.forks_count || 0;
+                if (repo.language) languages.add(repo.language);
+            });
+
+            document.getElementById('totalStars').textContent = totalStars;
+            document.getElementById('totalForks').textContent = totalForks;
+            document.getElementById('languages').textContent = languages.size;
+        }
+
+        function getLanguageCategory(language) {
+            if (!language) return 'other';
+            
+            const lang = language.toLowerCase();
+            if (['javascript', 'typescript', 'nodejs', 'react', 'vue', 'angular'].some(l => lang.includes(l))) return 'javascript';
+            if (lang.includes('python')) return 'python';
+            if (['html', 'css', 'scss'].includes(lang)) return 'html';
+            return 'other';
+        }
+
+        function renderRepositories() {
+            document.getElementById('loading').style.display = 'none';
+            
+            const filtered = currentFilter === 'all' 
+                ? allRepos 
+                : allRepos.filter(repo => getLanguageCategory(repo.language) === currentFilter);
+
+            const container = document.getElementById('reposContainer');
+
+            if (filtered.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                container.style.display = 'none';
+                return;
+            }
+
+            document.getElementById('emptyState').style.display = 'none';
+            container.style.display = 'grid';
+
+            container.innerHTML = filtered.map(repo => `
+                <div class="repo-card">
+                    <div class="repo-header">
+                        <div>
+                            <div class="repo-name">${escapeHtml(repo.name)}</div>
+                        </div>
+                        <div class="repo-icon">📦</div>
+                    </div>
+                    
+                    <p class="repo-description">${escapeHtml(repo.description || 'No description available')}</p>
+                    
+                    ${repo.language ? `<span class="language-badge">${escapeHtml(repo.language)}</span>` : ''}
+                    
+                    <div class="repo-meta">
+                        <div class="meta-item">⭐ ${repo.stargazers_count || 0}</div>
+                        <div class="meta-item">🍴 ${repo.forks_count || 0}</div>
+                        ${repo.open_issues_count ? `<div class="meta-item">⚠️ ${repo.open_issues_count}</div>` : ''}
+                    </div>
+                    
+                    <div class="repo-links">
+                        <a href="${repo.html_url}" class="repo-link" target="_blank">View Code</a>
+                        ${repo.hasLiveApp ? `<a href="https://${GITHUB_USERNAME}.github.io/${repo.name}" class="repo-link secondary" target="_blank">🚀 Live App</a>` : ''}
+                        ${repo.homepage ? `<a href="${repo.homepage}" class="repo-link secondary" target="_blank">Live Demo</a>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Filter button handlers
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderRepositories();
+            });
+        });
+
+        // Fetch on page load
+        window.addEventListener('DOMContentLoaded', fetchRepositories);
+
+        // Auto-refresh every 5 minutes
+        setInterval(fetchRepositories, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
